@@ -1,0 +1,280 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  body {
+    @apply m-0 p-0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Display', 'SF Pro Text', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+}
+
+@layer components {
+  .pixel-shadow {
+    box-shadow: 3px 3px 0px 0px #BBF7D0;
+  }
+  
+  .pixel-shadow-lg {
+    box-shadow: 4px 4px 0px 0px #BBF7D0;
+  }
+  
+  .retro-window {
+    @apply bg-kawaii-windowbg border-4 border-kawaii-border pixel-shadow-lg rounded-xl;
+    border-style: outset;
+  }
+  
+  .retro-window.pixel-window {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    filter: contrast(1.05) saturate(1.02);
+  }
+  
+  .retro-titlebar {
+    @apply bg-kawaii-titlebg border-b-2 border-kawaii-border 
+           px-3 py-2 text-sm font-bold
+           text-kawaii-text uppercase tracking-wider rounded-t-lg;
+  }
+  
+  .retro-button {
+    @apply bg-kawaii-surface text-kawaii-text px-3 py-2 
+           border-2 border-kawaii-border font-bold
+           hover:bg-kawaii-highlight transition-all duration-100 
+           uppercase tracking-wider text-xs rounded-lg;
+    border-style: outset;
+  }
+  
+  .retro-button.pixel-button {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    filter: contrast(1.05) saturate(1.02);
+  }
+  
+  .retro-button:active {
+    border-style: inset;
+  }
+  
+  .activity-icon {
+    @apply w-20 h-20 bg-kawaii-surface border-4 border-kawaii-border 
+           flex items-center justify-center text-3xl 
+           hover:bg-kawaii-highlight transition-all duration-100 
+           cursor-pointer pixel-shadow text-kawaii-text rounded-xl;
+    border-style: outset;
+  }
+  
+  .activity-icon.pixel-icon {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    filter: contrast(1.1) saturate(1.05);
+  }
+  
+  .activity-icon:active {
+    border-style: inset;
+  }
+  
+  .window-bg {
+    background-image: 
+      linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.1) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.1) 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+  }
+  
+  .clouds-bg {
+    background-image: 
+      radial-gradient(ellipse 60px 40px at 50% 20%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
+      radial-gradient(ellipse 80px 50px at 20% 30%, rgba(255, 255, 255, 0.6) 0%, transparent 50%),
+      radial-gradient(ellipse 70px 45px at 80% 25%, rgba(255, 255, 255, 0.7) 0%, transparent 50%);
+    background-size: 300px 200px, 250px 180px, 280px 190px;
+    background-position: 0% 0%, 100% 0%, 50% 0%;
+    background-repeat: repeat-x;
+  }
+  
+  .pixelated {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    filter: contrast(1.2) saturate(1.1);
+  }
+  
+  .super-pixelated {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    filter: contrast(1.3) saturate(1.2) blur(0.5px);
+    transform: scale(0.5);
+    transform-origin: top left;
+    width: 200%;
+    height: 200%;
+  }
+  
+  .pixel-avatar {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    filter: contrast(2) saturate(1.5) brightness(1.1);
+    /* Force very low resolution scaling */
+    width: 124px;
+    height: 124px;
+    background-size: 31px 31px;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  .pixel-extreme {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    filter: contrast(2.5) saturate(2) brightness(1.2);
+    /* Scale down heavily then scale back up */
+    transform: scale(4);
+    transform-origin: center;
+    width: 25%;
+    height: 25%;
+  }
+  
+  .pixel-chunky {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    filter: contrast(3) saturate(2.5) brightness(1.3);
+    /* Very aggressive pixelation */
+    background-size: cover;
+    background-repeat: no-repeat;
+    image-resolution: 72dpi;
+  }
+  
+  .pixel-hover:hover {
+    filter: contrast(1.6) saturate(1.5) brightness(1.2);
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+  }
+  
+  /* Block-style components */
+  .block-style {
+    @apply border-4 border-black rounded-lg overflow-hidden;
+    box-shadow: 4px 4px 0px #BBF7D0;
+  }
+  
+  .block-header {
+    @apply bg-gradient-to-r from-green-400 to-emerald-500 px-4 py-3 border-b-4 border-black;
+  }
+  
+  .block-header h2 {
+    @apply text-white font-bold;
+  }
+  
+  .activity-block {
+    @apply flex items-center gap-4 p-4 border-2 border-gray-300 rounded-lg 
+           hover:border-green-400 hover:bg-green-50 cursor-pointer transition-all;
+  }
+  
+  .activity-block:hover {
+    box-shadow: 2px 2px 0px #BBF7D0;
+  }
+  
+  .mega-pixel {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    filter: contrast(3) saturate(3) brightness(1.5);
+    /* Create very chunky pixels by scaling way down then up */
+    width: 120px;
+    height: 120px;
+    background-image: var(--bg-image);
+    background-size: 20px 20px;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  .ultra-pixel {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    filter: contrast(4) saturate(4) brightness(1.8) sepia(0.2);
+    /* Even more extreme pixelation */
+    transform: scale(1);
+    background-size: 15px 15px;
+  }
+  
+  .scanlines {
+    position: relative;
+  }
+  
+  .scanlines::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      linear-gradient(
+        transparent 50%, 
+        rgba(0, 0, 0, 0.05) 50%
+      );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .pixel-ui {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    filter: contrast(1.1) saturate(1.05);
+  }
+  
+  .pixel-window {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    filter: contrast(1.05) saturate(1.02);
+  }
+  
+  .pixel-icon {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    filter: contrast(1.1) saturate(1.05);
+  }
+  
+  .pixel-button {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    filter: contrast(1.05) saturate(1.02);
+  }
+  
+  .border-3 {
+    border-width: 3px;
+  }
+  
+  .pixel-lightgray {
+    background-color: #D9D9D9;
+  }
+}

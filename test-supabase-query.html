@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supabase Query</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+        .result {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+        }
+        button {
+            background: #e91e63;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover {
+            background: #d81b60;
+        }
+        .error {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .success {
+            color: #4caf50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Supabase Connection</h1>
+    
+    <p>Copy and paste this code into your browser console (F12) while on your blog page:</p>
+    
+    <div class="code-block">// Test Supabase connection directly
+async function testSupabase() {
+  console.log('Starting Supabase test...');
+  
+  // Get the Supabase client from your app
+  const { supabase } = await import('/lib/supabase-client');
+  
+  // Test 1: Basic connection
+  console.log('Test 1: Checking auth session...');
+  const { data: session, error: sessionError } = await supabase.auth.getSession();
+  console.log('Session:', session);
+  if (sessionError) console.error('Session error:', sessionError);
+  
+  // Test 2: Count all posts
+  console.log('\nTest 2: Counting all posts...');
+  const { count, error: countError } = await supabase
+    .from('posts')
+    .select('*', { count: 'exact', head: true });
+  console.log('Total posts in database:', count);
+  if (countError) console.error('Count error:', countError);
+  
+  // Test 3: Fetch all posts (no filter)
+  console.log('\nTest 3: Fetching all posts without filter...');
+  const { data: allPosts, error: allError } = await supabase
+    .from('posts')
+    .select('*')
+    .limit(3);
+  console.log('All posts:', allPosts);
+  if (allError) console.error('All posts error:', allError);
+  
+  // Test 4: Fetch published posts
+  console.log('\nTest 4: Fetching published posts...');
+  const { data: publishedPosts, error: publishedError } = await supabase
+    .from('posts')
+    .select('*')
+    .eq('is_draft', false)
+    .limit(3);
+  console.log('Published posts:', publishedPosts);
+  if (publishedError) console.error('Published posts error:', publishedError);
+  
+  // Test 5: Check RLS status
+  console.log('\nTest 5: Testing direct SQL query...');
+  try {
+    // This will fail if RLS is blocking us
+    const { data: rlsTest, error: rlsError } = await supabase
+      .from('posts')
+      .select('id')
+      .limit(1)
+      .single();
+    
+    if (rlsError) {
+      console.error('RLS might be blocking access:', rlsError);
+    } else {
+      console.log('RLS test passed, can access posts table');
+    }
+  } catch (e) {
+    console.error('RLS test failed:', e);
+  }
+  
+  console.log('\n=== Test Complete ===');
+  console.log('If you see errors above, the issue is likely:');
+  console.log('1. RLS policies blocking read access');
+  console.log('2. No posts in the database');
+  console.log('3. Connection/authentication issues');
+}
+
+// Run the test
+testSupabase();</div>
+
+    <h2>Alternative: Manual SQL Check</h2>
+    <p>Run this SQL in your Supabase dashboard to check RLS status:</p>
+    
+    <div class="code-block">-- Check if RLS is enabled
+SELECT 
+  schemaname,
+  tablename,
+  rowsecurity
+FROM pg_tables
+WHERE tablename = 'posts';
+
+-- Check existing policies
+SELECT 
+  schemaname,
+  tablename,
+  policyname,
+  permissive,
+  roles,
+  cmd,
+  qual,
+  with_check
+FROM pg_policies
+WHERE tablename = 'posts';
+
+-- Count posts directly (bypasses RLS)
+SELECT COUNT(*) FROM posts;
+SELECT COUNT(*) FROM posts WHERE is_draft = false;</div>
+
+    <h2>Quick Fix: Disable RLS Temporarily</h2>
+    <p>If RLS is the issue, try this in SQL Editor:</p>
+    
+    <div class="code-block">-- Temporarily disable RLS to test
+ALTER TABLE posts DISABLE ROW LEVEL SECURITY;
+
+-- Remember to re-enable it with proper policies later!</div>
+
+</body>
+</html>
