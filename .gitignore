@@ -32,3 +32,22 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+node_modules/
+.next/
+out/
+.env*.local
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vercel
+.claude/
+404.html
+start-dev.bat
+start.cmd
+launch.bat
+test-*.js
+setup-avatar-storage.js
+server.js
