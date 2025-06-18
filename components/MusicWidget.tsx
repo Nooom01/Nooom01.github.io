@@ -42,6 +42,14 @@ export default function MusicWidget({ onMusicUpdate, defaultMusic }: MusicWidget
     }
   }
 
+  // Music sources
+  const musicSources = [
+    { name: 'Spotify', emoji: '🎵' },
+    { name: 'YouTube', emoji: '📺' },
+    { name: 'SoundCloud', emoji: '☁️' },
+    { name: 'Other', emoji: '🎶' }
+  ]
+
   // Quick music templates
   const musicTemplates = [
     { title: 'Lofi Hip Hop Radio', artist: 'ChilledCow', source: 'YouTube' },
