@@ -208,7 +208,7 @@ export default function Home() {
             </div>
 
             {/* Right Section - Now Playing & Recent */}
-            <div className="lg:col-span-1 bg-white flex flex-col">
+            <div className="lg:col-span-1 bg-white flex flex-col h-full overflow-hidden">
               {/* Now Playing Block */}
               <div className="border-b border-gray-200">
                 <div className="border-b border-gray-200 bg-gray-50 px-3 py-2">
@@ -220,11 +220,11 @@ export default function Home() {
               </div>
               
               {/* Recent Activity Block */}
-              <div className="flex-1 flex flex-col">
-                <div className="border-b border-gray-200 bg-gray-50 px-3 py-2">
+              <div className="flex-1 flex flex-col min-h-0">
+                <div className="border-b border-gray-200 bg-gray-50 px-3 py-2 flex-shrink-0">
                   <h2 className="text-sm font-medium text-gray-900 tracking-tight">Recent Activity</h2>
                 </div>
-                <div className="flex-1 p-3 overflow-y-auto">
+                <div className="flex-1 p-3 pb-6 overflow-y-auto min-h-0">
                   <RecentActivity onCategoryClick={handleCategoryClick} />
                 </div>
               </div>
