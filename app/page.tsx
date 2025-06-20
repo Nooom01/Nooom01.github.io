@@ -224,8 +224,10 @@ export default function Home() {
                 <div className="border-b border-gray-200 bg-gray-50 px-3 py-2 flex-shrink-0">
                   <h2 className="text-sm font-medium text-gray-900 tracking-tight">Recent Activity</h2>
                 </div>
-                <div className="flex-1 p-3 pb-6 overflow-y-auto min-h-0">
-                  <RecentActivity onCategoryClick={handleCategoryClick} />
+                <div className="flex-1 p-3 overflow-y-auto min-h-0">
+                  <div className="pb-6">
+                    <RecentActivity onCategoryClick={handleCategoryClick} />
+                  </div>
                 </div>
               </div>
             </div>
