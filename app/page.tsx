@@ -257,6 +257,7 @@ export default function Home() {
           <PostModal
             category={selectedCategory}
             editPost={editingPost}
+            isBlogOwner={isBlogOwner}
             onClose={() => {
               setShowCreatePost(false)
               setSelectedCategory(null)

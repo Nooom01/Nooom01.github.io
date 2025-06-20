@@ -9,6 +9,7 @@ import WeatherWidget from '@/components/WeatherWidget'
 interface PostModalProps {
   category: string
   onClose: () => void
+  isBlogOwner?: boolean
   editPost?: {
     id: string
     title: string
@@ -131,7 +132,37 @@ const postTemplates = {
   ]
 }
 
-export default function PostModal({ category, onClose, editPost }: PostModalProps) {
+export default function PostModal({ category, onClose, editPost, isBlogOwner = false }: PostModalProps) {
+  // Security check - only blog owner can create/edit posts
+  if (!isBlogOwner) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 pointer-events-auto text-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Access Denied</h2>
+          <p className="text-gray-600 mb-6">Only the blog owner can create or edit posts.</p>
+          <button
+            onClick={onClose}
+            className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            Close
+          </button>
+        </motion.div>
+      </motion.div>
+    )
+  }
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<{ images: string[], videos: string[] }>({ 
     images: editPost?.image_urls || [], 
