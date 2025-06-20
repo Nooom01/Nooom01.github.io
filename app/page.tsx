@@ -112,31 +112,31 @@ export default function Home() {
           {/* Authentication positioned over the header */}
           <SimpleAuth />
           {/* Header */}
-          <header className="bg-blue-50 px-6 py-4 border-b border-blue-100">
-            <h1 className="text-xl font-medium text-gray-900 text-center">
+          <header className="bg-blue-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-blue-100">
+            <h1 className="text-lg sm:text-xl font-medium text-gray-900 text-center">
               Daily Check-In
             </h1>
           </header>
 
           {/* Main Content Grid - fills remaining height */}
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 min-h-0">
-            {/* Left Section - About */}
-            <div className="lg:col-span-1 lg:border-r border-b lg:border-b-0 border-gray-200 bg-white">
+          <div className="flex-1 flex flex-col lg:grid lg:grid-cols-4 min-h-0">
+            {/* Left Section - About - Hidden on mobile, shown on desktop */}
+            <div className="hidden lg:block lg:col-span-1 lg:border-r border-gray-200 bg-white">
               {/* About Block */}
-              <div className="p-3">
+              <div className="p-4">
                 <h2 className="text-sm font-medium text-gray-900 mb-2 tracking-tight">About</h2>
-                <p className="text-xs text-gray-600 leading-tight">
+                <p className="text-xs text-gray-600 leading-relaxed">
                   Hi! Stop checking on me directly, just look at this. How easy right?
                 </p>
               </div>
             </div>
 
             {/* Middle Section - Activities */}
-            <div className="lg:col-span-2 lg:border-r border-b lg:border-b-0 border-gray-200 bg-gray-50">
-              <div className="border-b border-gray-200 bg-white px-3 py-2">
+            <div className="flex-1 lg:flex-initial lg:col-span-2 lg:border-r border-b lg:border-b-0 border-gray-200 bg-gray-50 order-2 lg:order-1">
+              <div className="border-b border-gray-200 bg-white px-4 py-2">
                 <h2 className="text-sm font-medium text-gray-900 tracking-tight">Activities</h2>
               </div>
-              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 sm:p-6 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4">
                 {[
                   { 
                     category: 'eat', 
@@ -186,23 +186,26 @@ export default function Home() {
                 ].map(({ category, icon, label }) => (
                   <div 
                     key={category} 
-                    className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+                    className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-md sm:shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
                     onClick={() => handleCategoryClick(category)}
                   >
-                    <div className="flex flex-col items-center space-y-3">
-                      <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl group-hover:scale-110 transition-transform duration-300 shadow-inner">
-                        {icon}
+                    <div className="flex flex-col items-center space-y-2 sm:space-y-3">
+                      <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                        <div className="transform scale-75 sm:scale-100">
+                          {icon}
+                        </div>
                       </div>
-                      <span className="text-base font-semibold text-gray-900">{label}</span>
+                      <span className="text-sm sm:text-base font-semibold text-gray-900">{label}</span>
                       {isBlogOwner && (
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
                             handleCreatePost(category);
                           }}
-                          className="mt-2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-4 py-2 rounded-full text-xs font-medium hover:from-gray-900 hover:to-black shadow-md"
+                          className="mt-1 sm:mt-2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs font-medium hover:from-gray-900 hover:to-black shadow-md"
                         >
-                          Create New
+                          <span className="hidden sm:inline">Create New</span>
+                          <span className="sm:hidden">New</span>
                         </button>
                       )}
                     </div>
@@ -211,25 +214,35 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Section - Now Playing & Recent */}
-            <div className="lg:col-span-1 bg-white flex flex-col h-full">
+            {/* Right Section - Now Playing & Recent - Shown first on mobile */}
+            <div className="lg:col-span-1 bg-white flex flex-col h-auto lg:h-full order-1 lg:order-2">
+              {/* Mobile About Section */}
+              <div className="lg:hidden border-b border-gray-200">
+                <div className="p-4">
+                  <h2 className="text-sm font-medium text-gray-900 mb-2 tracking-tight">About</h2>
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    Hi! Stop checking on me directly, just look at this. How easy right?
+                  </p>
+                </div>
+              </div>
+              
               {/* Now Playing Block */}
               <div className="border-b border-gray-200">
-                <div className="border-b border-gray-200 bg-gray-50 px-3 py-2">
+                <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
                   <h2 className="text-sm font-medium text-gray-900 tracking-tight">Now Playing</h2>
                 </div>
-                <div className="p-3">
+                <div className="p-4">
                   <NowPlaying />
                 </div>
               </div>
               
               {/* Recent Activity Block */}
               <div className="flex-1 flex flex-col min-h-0">
-                <div className="border-b border-gray-200 bg-gray-50 px-3 py-2 flex-shrink-0">
+                <div className="border-b border-gray-200 bg-gray-50 px-4 py-2 flex-shrink-0">
                   <h2 className="text-sm font-medium text-gray-900 tracking-tight">Recent Activity</h2>
                 </div>
-                <div className="flex-1 overflow-y-auto" style={{ minHeight: '300px' }}>
-                  <div className="p-3">
+                <div className="flex-1 overflow-y-auto min-h-[200px] lg:min-h-[300px]">
+                  <div className="p-4">
                     <RecentActivity onCategoryClick={handleCategoryClick} />
                     <div className="h-6"></div>
                   </div>

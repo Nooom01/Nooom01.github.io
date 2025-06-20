@@ -56,21 +56,25 @@ export default function SimpleAuth() {
   if (user) {
     return (
       <>
-        <div className="absolute top-4 right-4 z-50">
-          <div className="flex items-center gap-3 bg-white/95 backdrop-blur px-4 py-2 rounded-full border border-gray-200 shadow-sm">
-            <span className="text-sm text-gray-700">{user.email}</span>
-            <button 
-              onClick={() => setShowProfileEdit(true)}
-              className="px-4 py-1.5 bg-pink-400 text-white rounded-full text-sm hover:bg-pink-500 transition-colors"
-            >
-              Edit Profile
-            </button>
-            <button 
-              onClick={signOut}
-              className="px-4 py-1.5 bg-gray-900 text-white rounded-full text-sm hover:bg-gray-800 transition-colors"
-            >
-              Sign Out
-            </button>
+        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-50">
+          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-3 bg-white/95 backdrop-blur p-2 sm:px-4 sm:py-2 rounded-2xl sm:rounded-full border border-gray-200 shadow-sm">
+            <span className="text-xs sm:text-sm text-gray-700 px-2 sm:px-0 truncate max-w-[150px] sm:max-w-none">{user.email}</span>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setShowProfileEdit(true)}
+                className="px-3 py-1 sm:px-4 sm:py-1.5 bg-pink-400 text-white rounded-full text-xs sm:text-sm hover:bg-pink-500 transition-colors"
+              >
+                <span className="hidden sm:inline">Edit Profile</span>
+                <span className="sm:hidden">Edit</span>
+              </button>
+              <button 
+                onClick={signOut}
+                className="px-3 py-1 sm:px-4 sm:py-1.5 bg-gray-900 text-white rounded-full text-xs sm:text-sm hover:bg-gray-800 transition-colors"
+              >
+                <span className="hidden sm:inline">Sign Out</span>
+                <span className="sm:hidden">Out</span>
+              </button>
+            </div>
           </div>
         </div>
         {showProfileEdit && (
@@ -89,12 +93,12 @@ export default function SimpleAuth() {
   return (
     <>
       {/* Subtle login button */}
-      <div className="absolute top-4 right-4 z-50">
+      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-50">
         <button
           onClick={() => setShowLogin(!showLogin)}
-          className="px-5 py-2 bg-gray-900 text-white rounded-full text-sm hover:bg-gray-800 transition-colors flex items-center gap-2 shadow-sm"
+          className="px-4 py-1.5 sm:px-5 sm:py-2 bg-gray-900 text-white rounded-full text-xs sm:text-sm hover:bg-gray-800 transition-colors flex items-center gap-1 sm:gap-2 shadow-sm"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
           </svg>
           Login
