@@ -112,8 +112,8 @@ export default function Home() {
           {/* Authentication positioned over the header */}
           <SimpleAuth />
           {/* Header */}
-          <header className="bg-blue-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-blue-100">
-            <h1 className="text-3xl sm:text-4xl tracking-wider text-gray-900 text-center font-[family-name:var(--font-bebas)] uppercase">
+          <header className="bg-gradient-to-r from-blue-50 to-purple-50 px-4 sm:px-6 py-5 sm:py-6 border-b border-gray-200 shadow-sm">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 text-center font-[family-name:var(--font-poppins)] tracking-tight">
               Daily Check-In
             </h1>
           </header>
