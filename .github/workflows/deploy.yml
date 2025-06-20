@@ -1,21 +1,12 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -33,18 +24,22 @@ jobs:
       - name: Build with Next.js
         run: npm run build
         
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./out
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Copy built files to root
+        run: |
+          # Remove old files but keep .git, .github, node_modules, and source files
+          find . -maxdepth 1 -name "*.html" -delete
+          find . -maxdepth 1 -name "*.txt" -delete
+          rm -rf ./_next 2>/dev/null || true
+          rm -rf ./assets 2>/dev/null || true
+          rm -rf ./404 2>/dev/null || true
+          
+          # Copy new build files
+          cp -r out/* .
+          
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git diff --staged --quiet || git commit -m "Deploy: Update static files [skip ci]"
+          git push
