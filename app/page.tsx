@@ -106,9 +106,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-0">
-      <div className="h-screen flex flex-col relative">
+      <div className="min-h-screen flex flex-col relative">
         {/* Full height container */}
-        <div className="flex-1 flex flex-col bg-white overflow-hidden">
+        <div className="flex-1 flex flex-col bg-white">
           {/* Authentication positioned over the header */}
           <SimpleAuth />
           {/* Header */}
@@ -119,7 +119,7 @@ export default function Home() {
           </header>
 
           {/* Main Content Grid - fills remaining height */}
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-4">
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 min-h-0">
             {/* Left Section - About */}
             <div className="lg:col-span-1 lg:border-r border-b lg:border-b-0 border-gray-200 bg-white">
               {/* About Block */}
@@ -208,7 +208,7 @@ export default function Home() {
             </div>
 
             {/* Right Section - Now Playing & Recent */}
-            <div className="lg:col-span-1 bg-white flex flex-col h-full overflow-hidden">
+            <div className="lg:col-span-1 bg-white flex flex-col h-full">
               {/* Now Playing Block */}
               <div className="border-b border-gray-200">
                 <div className="border-b border-gray-200 bg-gray-50 px-3 py-2">
@@ -224,9 +224,10 @@ export default function Home() {
                 <div className="border-b border-gray-200 bg-gray-50 px-3 py-2 flex-shrink-0">
                   <h2 className="text-sm font-medium text-gray-900 tracking-tight">Recent Activity</h2>
                 </div>
-                <div className="flex-1 p-3 overflow-y-auto min-h-0">
-                  <div className="pb-6">
+                <div className="flex-1 overflow-y-auto" style={{ minHeight: '300px' }}>
+                  <div className="p-3">
                     <RecentActivity onCategoryClick={handleCategoryClick} />
+                    <div className="h-6"></div>
                   </div>
                 </div>
               </div>
