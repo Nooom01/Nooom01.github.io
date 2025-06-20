@@ -194,15 +194,17 @@ export default function Home() {
                         {icon}
                       </div>
                       <span className="text-base font-semibold text-gray-900">{label}</span>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCreatePost(category);
-                        }}
-                        className="mt-2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-4 py-2 rounded-full text-xs font-medium hover:from-gray-900 hover:to-black shadow-md"
-                      >
-                        Create New
-                      </button>
+                      {isBlogOwner && (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCreatePost(category);
+                          }}
+                          className="mt-2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-4 py-2 rounded-full text-xs font-medium hover:from-gray-900 hover:to-black shadow-md"
+                        >
+                          Create New
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
