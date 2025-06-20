@@ -270,19 +270,19 @@ export default function PostModal({ category, onClose, editPost }: PostModalProp
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+      className="fixed inset-0 z-50 flex items-center justify-center p-1 sm:p-4 pointer-events-none"
       onClick={onClose}
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="bg-white bg-opacity-90 backdrop-blur-sm rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto"
+        className="bg-white bg-opacity-90 backdrop-blur-sm rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] overflow-y-auto pointer-events-auto mx-1 sm:mx-4"
         onClick={(e) => e.stopPropagation()}
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        <div className="sticky top-0 z-10 bg-white bg-opacity-90 backdrop-blur-sm flex items-center justify-between p-6 border-b border-gray-200 rounded-t-2xl">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+        <div className="sticky top-0 z-10 bg-white bg-opacity-90 backdrop-blur-sm flex items-center justify-between p-3 sm:p-6 border-b border-gray-200 rounded-t-2xl">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
             <span className="text-lg">{categoryEmojis[category as keyof typeof categoryEmojis]}</span>
             {editPost ? 'Edit' : 'Create'} {category.charAt(0).toUpperCase() + category.slice(1)} Post
           </h2>
@@ -293,7 +293,7 @@ export default function PostModal({ category, onClose, editPost }: PostModalProp
             ×
           </button>
         </div>
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* Template Selector */}
           {showTemplates && (
             <div className="mb-6">
@@ -309,7 +309,7 @@ export default function PostModal({ category, onClose, editPost }: PostModalProp
                   Skip templates
                 </button>
               </div>
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
                 {postTemplates[category as keyof typeof postTemplates]?.map((template, index) => (
                   <button
                     key={index}
@@ -390,7 +390,7 @@ export default function PostModal({ category, onClose, editPost }: PostModalProp
             {category === 'sleep' && (
               <div>
                 <p className="text-kawaii-text/60 font-pixel text-pixel-xs mb-2">Quick options:</p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1 sm:gap-2">
                   {[
                     "Slept well 😴",
                     "8 hours of sleep",
@@ -403,7 +403,7 @@ export default function PostModal({ category, onClose, editPost }: PostModalProp
                       key={suggestion}
                       type="button"
                       onClick={() => setValue('content', suggestion)}
-                      className="px-2 py-1 bg-kawaii-surface border border-kawaii-border rounded font-pixel text-pixel-xs hover:bg-kawaii-accent transition-colors pixel-ui"
+                      className="px-1 sm:px-2 py-1 bg-kawaii-surface border border-kawaii-border rounded font-pixel text-pixel-xs hover:bg-kawaii-accent transition-colors pixel-ui text-xs"
                       style={{ borderStyle: 'outset' }}
                     >
                       {suggestion}
@@ -448,7 +448,7 @@ export default function PostModal({ category, onClose, editPost }: PostModalProp
                 disabled={isUploading}
               />
               {uploadedFiles.images.length > 0 && (
-                <div className="mt-2 grid grid-cols-2 gap-2">
+                <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {uploadedFiles.images.map((url, index) => (
                     <div key={index} className="relative">
                       <img 
@@ -518,7 +518,7 @@ export default function PostModal({ category, onClose, editPost }: PostModalProp
               <WeatherWidget onWeatherUpdate={setWeatherData} />
             </div>
 
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-2 sm:gap-3 pt-4">
               <motion.button
                 type="submit"
                 disabled={isSubmitting}

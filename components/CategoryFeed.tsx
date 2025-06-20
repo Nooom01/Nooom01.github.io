@@ -189,16 +189,16 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
   return (
     <motion.div 
       className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm"
-      style={{ width: '468px' }}
+      style={{ maxWidth: '468px', width: '100%' }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
     >
       {/* Header */}
-      <div className="flex items-center gap-3 p-4">
-        <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-          <span className="text-white font-semibold text-sm">{username.charAt(0).toUpperCase()}</span>
+      <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4">
+        <div className="w-8 sm:w-10 h-8 sm:h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+          <span className="text-white font-semibold text-xs sm:text-sm">{username.charAt(0).toUpperCase()}</span>
         </div>
         <div className="flex-1">
           <h3 className="font-semibold text-gray-900">{username}</h3>
@@ -212,7 +212,7 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
 
       {/* Weather info */}
       {post.weather && (
-        <div className="px-4 mb-3">
+        <div className="px-3 sm:px-4 mb-3">
           <div className="bg-gray-50 px-3 py-2 rounded-xl inline-flex items-center gap-2">
             <span className="text-sm">{post.weather.icon}</span>
             <span className="text-xs text-gray-600 font-medium">
@@ -226,7 +226,7 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
       {category !== 'sleep' && (
         <div 
           className="relative bg-gray-50 flex items-center justify-center"
-          style={{ height: '400px' }}
+          style={{ height: '300px' }}
         >
           {post.image_urls && post.image_urls.length > 0 ? (
             <img src={post.image_urls[0]} alt="Post" className="w-full h-full object-cover" />
@@ -258,7 +258,7 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
       
       {/* Sleep posts: Show emoji inline with content */}
       {category === 'sleep' && (
-        <div className="mb-3 mx-4 flex items-center gap-3 bg-gray-50 px-4 py-3 rounded-xl">
+        <div className="mb-3 mx-3 sm:mx-4 flex items-center gap-3 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl">
           <motion.div 
             className="flex items-center justify-center"
             animate={{ rotate: [-10, 10, -10] }}
@@ -277,7 +277,7 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-4 px-4 py-3">
+      <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3">
         <motion.button
           onClick={toggleLike}
           disabled={isLiking}
@@ -369,12 +369,12 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
       </div>
 
       {/* Likes */}
-      <p className="font-semibold text-gray-900 text-sm px-4 mb-2">
+      <p className="font-semibold text-gray-900 text-sm px-3 sm:px-4 mb-2">
         {formatLikes(likesCount)}
       </p>
 
       {/* Content */}
-      <div className="mb-3 px-4">
+      <div className="mb-3 px-3 sm:px-4">
         {category === 'sleep' ? (
           /* Sleep posts: More Twitter-like, content-focused */
           <p className="text-sm text-gray-900 leading-relaxed">
@@ -391,7 +391,7 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
 
       {/* Comments count */}
       <p 
-        className="text-sm text-gray-500 mb-3 cursor-pointer hover:text-gray-700 transition-colors px-4"
+        className="text-sm text-gray-500 mb-3 cursor-pointer hover:text-gray-700 transition-colors px-3 sm:px-4"
         onClick={() => setShowComments(!showComments)}
       >
         {showComments ? 'Hide' : 'View'} {commentsCount} comments
@@ -399,7 +399,7 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
 
       {/* Hashtags */}
       {post.hashtags && post.hashtags.length > 0 && (
-        <div className="mb-3 px-4">
+        <div className="mb-3 px-3 sm:px-4">
           {post.hashtags.map((tag, i) => (
             <span key={i} className="text-xs text-blue-500 mr-2 hover:text-blue-600 cursor-pointer transition-colors font-medium">#{tag}</span>
           ))}
@@ -409,7 +409,7 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
       {/* Comments section */}
       {!showComments && (
         <div 
-          className="flex items-center gap-3 px-4 py-3 border-t border-gray-100 cursor-pointer"
+          className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 border-t border-gray-100 cursor-pointer"
           onClick={() => setShowComments(true)}
         >
           <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
@@ -454,19 +454,19 @@ export default function CategoryFeed({ category, onClose, onEditPost, onDeletePo
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+      className="fixed inset-0 z-50 flex items-center justify-center p-1 sm:p-4 pointer-events-none"
       onClick={onClose}
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="bg-white bg-opacity-70 rounded-2xl shadow-2xl max-w-lg w-auto max-h-[90vh] overflow-y-auto pointer-events-auto"
+        className="bg-white bg-opacity-90 rounded-2xl shadow-2xl max-w-lg w-full max-h-[95vh] overflow-y-auto pointer-events-auto mx-1 sm:mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Title bar */}
-        <div className="sticky top-0 z-10 bg-white bg-opacity-90 backdrop-blur-sm flex items-center justify-between p-3 border-b border-gray-200 rounded-t-2xl">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+        <div className="sticky top-0 z-10 bg-white bg-opacity-90 backdrop-blur-sm flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 rounded-t-2xl">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
             <span className="inline-flex items-center">{categoryIcons[category as keyof typeof categoryIcons]}</span>
             {category.charAt(0).toUpperCase() + category.slice(1)} Posts
           </h2>
@@ -479,7 +479,7 @@ export default function CategoryFeed({ category, onClose, onEditPost, onDeletePo
         </div>
 
         {/* Content */}
-        <div className="p-3">
+        <div className="p-2 sm:p-3">
           {loading ? (
             <p className="text-center text-gray-500 text-sm">Loading posts...</p>
           ) : posts.length > 0 ? (
