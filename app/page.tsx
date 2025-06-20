@@ -113,7 +113,7 @@ export default function Home() {
           <SimpleAuth />
           {/* Header */}
           <header className="bg-blue-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-blue-100">
-            <h1 className="text-lg sm:text-xl font-medium text-gray-900 text-center">
+            <h1 className="text-3xl sm:text-4xl tracking-wider text-gray-900 text-center font-[family-name:var(--font-bebas)] uppercase">
               Daily Check-In
             </h1>
           </header>
