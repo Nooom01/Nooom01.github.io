@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase-client'
 import Comments from '@/components/Comments'
 import SpotifyEmbed from '@/components/SpotifyEmbed'
@@ -24,6 +24,11 @@ interface Post {
   spotify_urls: string[]
   hashtags: string[]
   created_at: string
+  weather?: {
+    temp: number
+    location: string
+    icon: string
+  }
   profiles: {
     username: string
     avatar_url: string
@@ -276,173 +281,276 @@ export default function SinglePostModal({
       onClick={onClose}
     >
       <motion.div
-        className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+        className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm max-w-lg w-full max-h-[90vh] overflow-y-auto"
+        style={{ maxWidth: '468px', width: '100%' }}
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-          <div className="flex items-center gap-3">
-            {categoryIcons[post.category as keyof typeof categoryIcons]}
-            <h2 className="text-lg font-semibold text-gray-900 capitalize">{post.category} Post</h2>
+        <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4">
+          <div className="w-8 sm:w-10 h-8 sm:h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+            <span className="text-white font-semibold text-xs sm:text-sm">
+              {post.profiles?.username?.charAt(0).toUpperCase() || 'B'}
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            {isBlogOwner && (
-              <>
-                <button
-                  onClick={() => onEditPost?.(post)}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                  title="Edit Post"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => onDeletePost?.(post)}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Delete Post"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-gray-900">{post.profiles?.username || 'Blog Owner'}</h3>
+              {/* Show timestamp for posts without images (Twitter-style) */}
+              {(!post.image_urls || post.image_urls.length === 0) && (
+                <span className="text-xs text-gray-500">· {new Date(post.created_at).toLocaleDateString()}</span>
+              )}
+            </div>
+            {/* Show title only for posts with images */}
+            {post.category !== 'sleep' && post.image_urls && post.image_urls.length > 0 && (
+              <div className="flex items-center gap-1 mt-0.5">
+                <span className="text-xs text-gray-500">{post.title}</span>
+              </div>
             )}
-            <button
-              onClick={onClose}
-              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
           </div>
+          <button
+            onClick={onClose}
+            className="p-1 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
-          <div className="p-4">
-            {/* Author and timestamp */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-semibold text-sm">
-                  {post.profiles?.username?.charAt(0).toUpperCase() || 'B'}
-                </span>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900">{post.profiles?.username || 'Blog Owner'}</p>
-                <p className="text-xs text-gray-500">{formatTime(post.created_at)}</p>
-              </div>
+        {/* Weather info */}
+        {post.weather && (
+          <div className="px-3 sm:px-4 mb-3">
+            <div className="bg-gray-50 px-3 py-2 rounded-xl inline-flex items-center gap-2">
+              <span className="text-sm">{post.weather.icon}</span>
+              <span className="text-xs text-gray-600 font-medium">
+                {post.weather.temp}°C in {post.weather.location}
+              </span>
             </div>
+          </div>
+        )}
 
-            {/* Title */}
-            {post.title && (
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{post.title}</h3>
-            )}
-
-            {/* Images */}
-            {post.image_urls && post.image_urls.length > 0 && (
-              <div className="mb-4">
-                {post.image_urls.length === 1 ? (
-                  <img 
-                    src={post.image_urls[0]} 
-                    alt="Post content" 
-                    className="w-full max-h-96 object-cover rounded-xl"
-                  />
-                ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    {post.image_urls.slice(0, 4).map((url, index) => (
-                      <img 
-                        key={index}
-                        src={url} 
-                        alt={`Post content ${index + 1}`} 
-                        className="w-full h-48 object-cover rounded-xl"
-                      />
-                    ))}
-                  </div>
-                )}
+        {/* Image display - Only show if images exist */}
+        {post.category !== 'sleep' && post.image_urls && post.image_urls.length > 0 && (
+          <div 
+            className="relative bg-gray-50 flex items-center justify-center"
+            style={{ height: '300px' }}
+          >
+            <img src={post.image_urls[0]} alt="Post" className="w-full h-full object-cover" />
+          </div>
+        )}
+        
+        {/* Sleep posts: Show emoji inline with content */}
+        {post.category === 'sleep' && (
+          <div className="mb-3 mx-3 sm:mx-4 flex items-center gap-3 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl">
+            <motion.div 
+              className="flex items-center justify-center"
+              animate={{ rotate: [-10, 10, -10] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <div className="w-8 h-8 flex items-center justify-center">
+                {categoryIcons[post.category as keyof typeof categoryIcons] && 
+                  React.cloneElement(categoryIcons[post.category as keyof typeof categoryIcons], {
+                    className: "w-6 h-6"
+                  })
+                }
               </div>
-            )}
+            </motion.div>
+            <div className="text-gray-500 text-xs">
+              {new Date(post.created_at).toLocaleDateString()}
+            </div>
+          </div>
+        )}
 
-            {/* Content */}
-            {post.content && (
-              <div className="mb-4">
-                <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
-                  {post.content}
-                </p>
-              </div>
-            )}
-
-            {/* Hashtags */}
-            {post.hashtags && post.hashtags.length > 0 && (
-              <div className="mb-4 flex flex-wrap gap-2">
-                {post.hashtags.map((tag, index) => (
-                  <span 
-                    key={index}
-                    className="text-blue-500 hover:text-blue-600 transition-colors cursor-pointer text-sm"
+        {/* Actions - Only show here for posts WITH images */}
+        {post.image_urls && post.image_urls.length > 0 && (
+          <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3">
+            <motion.button
+              onClick={toggleLike}
+              className="transition-transform"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <svg 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill={hasLiked ? "#ef4444" : "none"}
+                stroke={hasLiked ? "#ef4444" : "#374151"}
+                strokeWidth="2"
+                className="cursor-pointer transition-colors hover:stroke-red-500"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </motion.button>
+            
+            {/* Edit button for blog owner */}
+            {isBlogOwner && (
+              <>
+                <motion.button
+                  onClick={() => onEditPost?.(post)}
+                  className="transition-colors"
+                  title="Edit post"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <svg 
+                    width="20" 
+                    height="20" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                    className="cursor-pointer text-gray-500 hover:text-gray-700"
                   >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </motion.button>
+                <motion.button
+                  onClick={() => onDeletePost?.(post)}
+                  className="transition-colors"
+                  title="Delete post"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <svg 
+                    width="18" 
+                    height="18" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                    className="cursor-pointer text-red-500 hover:text-red-700"
+                  >
+                    <polyline points="3,6 5,6 21,6"></polyline>
+                    <path d="M19,6V20a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6M8,6V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2V6"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                  </svg>
+                </motion.button>
+              </>
             )}
+          </div>
+        )}
 
-            {/* Spotify Embeds */}
-            {post.spotify_urls && post.spotify_urls.length > 0 && (
-              <div className="mb-4 space-y-4">
-                {post.spotify_urls.map((url, index) => {
-                  // Extract Spotify ID from URL
-                  const spotifyId = url.split('/').pop()?.split('?')[0]
-                  const type: 'track' | 'playlist' | 'album' = url.includes('/track/') ? 'track' : url.includes('/playlist/') ? 'playlist' : 'album'
-                  return (
-                    <SpotifyEmbed key={index} spotifyId={spotifyId} type={type} />
-                  )
-                })}
-              </div>
-            )}
+        {/* Likes - Only show here for posts WITH images */}
+        {post.image_urls && post.image_urls.length > 0 && (
+          <p className="font-semibold text-gray-900 text-sm px-3 sm:px-4 mb-2">
+            {formatLikes(likesCount)}
+          </p>
+        )}
 
-            {/* Like Button */}
-            <div className="mb-4">
-              <motion.button 
+        {/* Content */}
+        <div className="mb-3 px-3 sm:px-4">
+          <p className="text-gray-900 leading-relaxed whitespace-pre-wrap">
+            {post.content}
+          </p>
+        </div>
+
+        {/* Like button and stats for posts WITHOUT images - Twitter style */}
+        {(!post.image_urls || post.image_urls.length === 0) && (
+          <div className="px-3 sm:px-4 mb-3">
+            <div className="flex items-center gap-4">
+              <motion.button
                 onClick={toggleLike}
-                className="flex items-center gap-2 group"
+                className="flex items-center gap-1 transition-all"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <motion.div
-                  animate={{ scale: hasLiked ? [1, 1.3, 1] : 1 }}
-                  transition={{ duration: 0.3 }}
+                <svg 
+                  width="20" 
+                  height="20" 
+                  viewBox="0 0 24 24" 
+                  fill={hasLiked ? "#ef4444" : "none"}
+                  stroke={hasLiked ? "#ef4444" : "#6b7280"}
+                  strokeWidth="2"
+                  className="cursor-pointer transition-colors hover:stroke-red-500"
                 >
-                  <svg 
-                    className={`w-6 h-6 transition-colors ${
-                      hasLiked 
-                        ? 'text-red-500 fill-current' 
-                        : 'text-gray-700 hover:text-red-500'
-                    }`}
-                    fill={hasLiked ? 'currentColor' : 'none'}
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
-                    />
-                  </svg>
-                </motion.div>
-                <span className="text-sm font-medium text-gray-700 group-hover:text-red-500 transition-colors">
-                  {formatLikes(likesCount)}
-                </span>
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                <span className="text-sm text-gray-600">{likesCount}</span>
               </motion.button>
+              
+              {/* Edit and Delete buttons for blog owner */}
+              {isBlogOwner && (
+                <>
+                  <motion.button
+                    onClick={() => onEditPost?.(post)}
+                    className="transition-colors"
+                    title="Edit post"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <svg 
+                      width="18" 
+                      height="18" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2"
+                      className="cursor-pointer text-gray-500 hover:text-gray-700"
+                    >
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </motion.button>
+                  <motion.button
+                    onClick={() => onDeletePost?.(post)}
+                    className="transition-colors"
+                    title="Delete post"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <svg 
+                      width="16" 
+                      height="16" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2"
+                      className="cursor-pointer text-red-500 hover:text-red-700"
+                    >
+                      <polyline points="3,6 5,6 21,6"></polyline>
+                      <path d="M19,6V20a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6M8,6V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2V6"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                  </motion.button>
+                </>
+              )}
             </div>
-
-            {/* Comments */}
-            <Comments postId={post.id} isExpanded={true} />
           </div>
+        )}
+
+        {/* Hashtags */}
+        {post.hashtags && post.hashtags.length > 0 && (
+          <div className="mb-3 px-3 sm:px-4">
+            {post.hashtags.map((tag, i) => (
+              <span key={i} className="text-xs text-blue-500 mr-2 hover:text-blue-600 cursor-pointer transition-colors font-medium">#{tag}</span>
+            ))}
+          </div>
+        )}
+
+        {/* Spotify Embeds */}
+        {post.spotify_urls && post.spotify_urls.length > 0 && (
+          <div className="mb-3 px-3 sm:px-4 space-y-3">
+            {post.spotify_urls.map((url, index) => {
+              // Extract Spotify ID from URL
+              const spotifyId = url.split('/').pop()?.split('?')[0]
+              const type: 'track' | 'playlist' | 'album' = url.includes('/track/') ? 'track' : url.includes('/playlist/') ? 'playlist' : 'album'
+              return (
+                <SpotifyEmbed key={index} spotifyId={spotifyId} type={type} />
+              )
+            })}
+          </div>
+        )}
+
+        {/* Comments */}
+        <div className="px-3 sm:px-4 pb-3">
+          <Comments postId={post.id} isExpanded={true} />
         </div>
       </motion.div>
     </motion.div>
