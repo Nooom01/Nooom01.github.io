@@ -43,9 +43,10 @@ const categoryIcons = {
 
 interface RecentActivityProps {
   onCategoryClick?: (category: string) => void
+  onPostClick?: (postId: string) => void
 }
 
-export default function RecentActivity({ onCategoryClick }: RecentActivityProps = {}) {
+export default function RecentActivity({ onCategoryClick, onPostClick }: RecentActivityProps = {}) {
   const [recentPosts, setRecentPosts] = useState<RecentPost[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -191,7 +192,7 @@ export default function RecentActivity({ onCategoryClick }: RecentActivityProps 
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
                 className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-all group"
-                onClick={() => onCategoryClick?.(post.category)}
+                onClick={() => onPostClick?.(post.id)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >

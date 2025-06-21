@@ -5,6 +5,7 @@ import RecentActivity from '@/components/RecentActivity'
 import SimpleAuth from '@/components/SimpleAuth'
 import PostModal from '@/components/PostModal'
 import CategoryFeed from '@/components/CategoryFeed'
+import SinglePostModal from '@/components/SinglePostModal'
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog'
 import NowPlaying from '@/components/NowPlaying'
 import { supabase } from '@/lib/supabase-client'
@@ -13,6 +14,8 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [showCreatePost, setShowCreatePost] = useState(false)
   const [showCategoryFeed, setShowCategoryFeed] = useState(false)
+  const [showSinglePost, setShowSinglePost] = useState(false)
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
   const [editingPost, setEditingPost] = useState<any>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [postToDelete, setPostToDelete] = useState<any>(null)
@@ -30,6 +33,12 @@ export default function Home() {
     setShowCategoryFeed(true)
   }
 
+  const handlePostClick = (postId: string) => {
+    console.log('📝 Post clicked:', postId)
+    setSelectedPostId(postId)
+    setShowSinglePost(true)
+  }
+
   const handleCreatePost = (category: string) => {
     console.log('Create post clicked:', category)
     setSelectedCategory(category)
@@ -42,6 +51,7 @@ export default function Home() {
     setEditingPost(post)
     setShowCreatePost(true)
     setShowCategoryFeed(false)
+    setShowSinglePost(false)
   }
 
   const handleDeletePost = (post: any) => {
@@ -249,7 +259,7 @@ export default function Home() {
                 </div>
                 <div className="flex-1 overflow-y-auto min-h-[200px] lg:min-h-[300px]">
                   <div className="p-4">
-                    <RecentActivity onCategoryClick={handleCategoryClick} />
+                    <RecentActivity onCategoryClick={handleCategoryClick} onPostClick={handlePostClick} />
                     <div className="h-6"></div>
                   </div>
                 </div>
@@ -281,6 +291,19 @@ export default function Home() {
             onClose={() => {
               setShowCategoryFeed(false)
               setSelectedCategory(null)
+            }}
+          />
+        )}
+
+        {mounted && showSinglePost && selectedPostId && (
+          <SinglePostModal
+            postId={selectedPostId}
+            onEditPost={handleEditPost}
+            onDeletePost={handleDeletePost}
+            isBlogOwner={isBlogOwner}
+            onClose={() => {
+              setShowSinglePost(false)
+              setSelectedPostId(null)
             }}
           />
         )}
