@@ -434,25 +434,48 @@ export default function CategoryFeed({ category, onClose, onEditPost, onDeletePo
 
   const fetchPosts = async () => {
     try {
-      const { data, error } = await supabase
+      console.log('Fetching posts for category:', category)
+      
+      // First, get posts
+      const { data: posts, error: postsError } = await supabase
         .from('posts')
-        .select(`
-          *,
-          profiles:user_id (
-            username
-          )
-        `)
+        .select('*')
         .eq('category', category)
         .eq('is_draft', false)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
-      
-      // Transform the data to flatten the profile info
-      const postsWithUsernames = (data || []).map(post => ({
-        ...post,
-        username: post.profiles?.username || 'Unknown User'
-      }))
+      console.log('Posts query result:', { posts, error: postsError })
+
+      if (postsError) throw postsError
+
+      if (!posts || posts.length === 0) {
+        console.log('No posts found for category:', category)
+        setPosts([])
+        return
+      }
+
+      // Then get usernames for each post
+      const postsWithUsernames = await Promise.all(
+        posts.map(async (post) => {
+          if (post.user_id) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('username')
+              .eq('id', post.user_id)
+              .single()
+            
+            return {
+              ...post,
+              username: profile?.username || 'Blog Owner'
+            }
+          } else {
+            return {
+              ...post,
+              username: 'Blog Owner'
+            }
+          }
+        })
+      )
       
       setPosts(postsWithUsernames)
     } catch (error) {
