@@ -25,7 +25,7 @@ export default function Home() {
   }, [])
 
   const handleCategoryClick = (category: string) => {
-    console.log('Category clicked:', category)
+    console.log('🎯 Category clicked:', category, 'mounted:', mounted, 'will show feed:', true)
     setSelectedCategory(category)
     setShowCategoryFeed(true)
   }
@@ -272,7 +272,7 @@ export default function Home() {
           />
         )}
 
-        {showCategoryFeed && selectedCategory && (
+        {mounted && showCategoryFeed && selectedCategory && (
           <CategoryFeed
             category={selectedCategory}
             onEditPost={handleEditPost}
