@@ -86,12 +86,56 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
   const [isLiking, setIsLiking] = useState(false)
 
   useEffect(() => {
-    // Temporarily disable likes/comments to avoid 406 errors
-    // Set default values
-    setCommentsCount(0)
-    setLikesCount(0)
-    setIsLiked(false)
+    fetchLikesAndComments()
   }, [post.id])
+
+  const fetchLikesAndComments = async () => {
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      // Fetch likes count
+      const { count: likesCount } = await supabase
+        .from('likes')
+        .select('*', { count: 'exact', head: true })
+        .eq('post_id', post.id)
+      
+      setLikesCount(likesCount || 0)
+      
+      // Fetch comments count
+      const { count: commentsCountData } = await supabase
+        .from('comments')
+        .select('*', { count: 'exact', head: true })
+        .eq('post_id', post.id)
+      
+      setCommentsCount(commentsCountData || 0)
+      
+      // Check if current user liked this post
+      if (user) {
+        const { data: userLike, error: likeError } = await supabase
+          .from('likes')
+          .select('id')
+          .eq('post_id', post.id)
+          .eq('user_id', user.id)
+          .maybeSingle()
+        
+        // Only log actual errors, not "no rows found"
+        if (likeError && likeError.code !== 'PGRST116') {
+          console.error('Error checking user like:', likeError)
+        }
+        
+        setIsLiked(!!userLike)
+      } else {
+        setIsLiked(false)
+      }
+    } catch (error) {
+      console.error('Error fetching likes/comments:', error)
+      // Set defaults on error
+      setCommentsCount(0)
+      setLikesCount(0)
+      setIsLiked(false)
+    }
+  }
 
   const formatLikes = (num: number) => {
     if (num >= 1000) {
@@ -106,15 +150,44 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
     if (isLiking) return
     
     setIsLiking(true)
-    // Simple local toggle without database calls
-    if (isLiked) {
-      setLikesCount(prev => Math.max(0, prev - 1))
-      setIsLiked(false)
-    } else {
-      setLikesCount(prev => prev + 1)
-      setIsLiked(true)
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        console.log('User not authenticated')
+        setIsLiking(false)
+        return
+      }
+      
+      if (isLiked) {
+        // Unlike
+        const { error } = await supabase
+          .from('likes')
+          .delete()
+          .eq('post_id', post.id)
+          .eq('user_id', user.id)
+        
+        if (error) throw error
+        
+        setLikesCount(prev => Math.max(0, prev - 1))
+        setIsLiked(false)
+      } else {
+        // Like
+        const { error } = await supabase
+          .from('likes')
+          .insert({ post_id: post.id, user_id: user.id })
+        
+        if (error) throw error
+        
+        setLikesCount(prev => prev + 1)
+        setIsLiked(true)
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error)
+    } finally {
+      setIsLiking(false)
     }
-    setIsLiking(false)
   }
 
   return (
