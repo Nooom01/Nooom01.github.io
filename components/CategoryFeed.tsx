@@ -79,6 +79,8 @@ interface Post {
 }
 
 function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: { post: Post; category: string; onEditPost?: (post: Post) => void; onDeletePost?: (post: Post) => void; isBlogOwner?: boolean }) {
+  console.log('🎯 SimplePost component rendered for post:', post.id, 'category:', category)
+  
   const [showComments, setShowComments] = useState(false)
   const [commentsCount, setCommentsCount] = useState(0)
   const [likesCount, setLikesCount] = useState(0)
@@ -169,6 +171,8 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
   const username = post.username || 'kawaii_blogger'
 
   const toggleLike = async () => {
+    console.log('❤️ TOGGLE LIKE CLICKED for post:', post.id)
+    
     if (isLiking) return
     
     setIsLiking(true)
