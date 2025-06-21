@@ -80,7 +80,7 @@ export default function RecentActivity({ onCategoryClick, onPostClick }: RecentA
         .select('id, title, content, category, created_at, hashtags')
         .eq('is_draft', false)
         .order('created_at', { ascending: false })
-        .limit(5)
+        .limit(3)
 
       if (error) {
         console.error('Supabase error:', error)
