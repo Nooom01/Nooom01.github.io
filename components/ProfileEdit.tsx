@@ -60,11 +60,15 @@ export default function ProfileEdit({ user, onClose, onUpdate }: ProfileEditProp
       const fileName = `${Math.random()}.${fileExt}`
       const filePath = `${user.id}/${fileName}`
 
+      console.log('Uploading to path:', filePath)
+      console.log('File details:', { name: file.name, size: file.size, type: file.type })
+      
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file)
 
       if (uploadError) {
+        console.error('Upload error details:', uploadError)
         throw uploadError
       }
 
@@ -73,9 +77,9 @@ export default function ProfileEdit({ user, onClose, onUpdate }: ProfileEditProp
         .getPublicUrl(filePath)
 
       setAvatarUrl(data.publicUrl)
-    } catch (error) {
-      alert('Error uploading avatar!')
-      console.error(error)
+    } catch (error: any) {
+      console.error('Avatar upload error:', error)
+      alert(`Error uploading avatar: ${error.message || error.toString()}`)
     } finally {
       setUploading(false)
     }
