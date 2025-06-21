@@ -93,20 +93,28 @@ export default function SinglePostModal({
 
   const fetchPost = async () => {
     try {
+      console.log('Fetching post with ID:', postId)
+      
       const { data, error } = await supabase
         .from('posts')
-        .select(`
-          *,
-          profiles:user_id (
-            username,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('id', postId)
         .single()
 
+      console.log('Post query result:', { data, error })
+
       if (error) throw error
-      setPost(data)
+      
+      // Add a mock profile for now since we don't have proper user profiles set up
+      const postWithProfile = {
+        ...data,
+        profiles: {
+          username: 'Blog Owner',
+          avatar_url: null
+        }
+      }
+      
+      setPost(postWithProfile)
       
       // Fetch likes count and user's like status
       await fetchLikes(data.id)
