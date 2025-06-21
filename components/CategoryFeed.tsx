@@ -86,60 +86,11 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
   const [isLiking, setIsLiking] = useState(false)
 
   useEffect(() => {
-    // Fetch counts and check if user liked
-    const fetchCounts = async () => {
-      try {
-        // Get comments count
-        const { count: commentCount } = await supabase
-          .from('comments')
-          .select('*', { count: 'exact', head: true })
-          .eq('post_id', post.id)
-        
-        setCommentsCount(commentCount || 0)
-      } catch (error) {
-        console.log('Comments table not accessible:', error)
-        setCommentsCount(0)
-      }
-
-      try {
-        // Get likes count
-        const { count: likeCount } = await supabase
-          .from('likes')
-          .select('*', { count: 'exact', head: true })
-          .eq('post_id', post.id)
-        
-        setLikesCount(likeCount || 0)
-
-        // Check if current user liked this post
-        const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
-          const { data: userLike } = await supabase
-            .from('likes')
-            .select('id')
-            .eq('post_id', post.id)
-            .eq('user_id', user.id)
-            .single()
-          
-          setIsLiked(!!userLike)
-        } else {
-          // For anonymous users, check by session ID (stored in localStorage)
-          const sessionId = getOrCreateSessionId()
-          const { data: anonLike } = await supabase
-            .from('likes')
-            .select('id')
-            .eq('post_id', post.id)
-            .eq('user_identifier', sessionId)
-            .single()
-          
-          setIsLiked(!!anonLike)
-        }
-      } catch (error) {
-        console.log('Likes table not accessible:', error)
-        setLikesCount(0)
-        setIsLiked(false)
-      }
-    }
-    fetchCounts()
+    // Temporarily disable likes/comments to avoid 406 errors
+    // Set default values
+    setCommentsCount(0)
+    setLikesCount(0)
+    setIsLiked(false)
   }, [post.id])
 
   const formatLikes = (num: number) => {
@@ -155,55 +106,15 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
     if (isLiking) return
     
     setIsLiking(true)
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (isLiked) {
-        // Unlike
-        if (user) {
-          await supabase
-            .from('likes')
-            .delete()
-            .eq('post_id', post.id)
-            .eq('user_id', user.id)
-        } else {
-          const sessionId = getOrCreateSessionId()
-          await supabase
-            .from('likes')
-            .delete()
-            .eq('post_id', post.id)
-            .eq('user_identifier', sessionId)
-        }
-        setLikesCount(prev => Math.max(0, prev - 1))
-        setIsLiked(false)
-      } else {
-        // Like
-        const likeData = {
-          post_id: post.id,
-          user_id: user?.id || null,
-          user_identifier: user ? null : getOrCreateSessionId()
-        }
-        
-        await supabase
-          .from('likes')
-          .insert(likeData)
-        
-        setLikesCount(prev => prev + 1)
-        setIsLiked(true)
-      }
-    } catch (error) {
-      console.log('Likes functionality not available:', error)
-      // For now, just do a simple local toggle if likes table doesn't exist
-      if (isLiked) {
-        setLikesCount(prev => Math.max(0, prev - 1))
-        setIsLiked(false)
-      } else {
-        setLikesCount(prev => prev + 1)
-        setIsLiked(true)
-      }
-    } finally {
-      setIsLiking(false)
+    // Simple local toggle without database calls
+    if (isLiked) {
+      setLikesCount(prev => Math.max(0, prev - 1))
+      setIsLiked(false)
+    } else {
+      setLikesCount(prev => prev + 1)
+      setIsLiked(true)
     }
+    setIsLiking(false)
   }
 
   return (
