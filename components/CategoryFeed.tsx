@@ -303,102 +303,97 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
         </div>
       )}
 
-      {/* Actions */}
-      <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3">
-        <motion.button
-          onClick={toggleLike}
-          disabled={isLiking}
-          className="transition-transform"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill={isLiked ? "#ef4444" : "none"}
-            stroke={isLiked ? "#ef4444" : "#374151"}
-            strokeWidth="2"
-            className="cursor-pointer transition-colors hover:stroke-red-500"
-          >
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-          </svg>
-        </motion.button>
-        
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <svg className="w-6 h-6 text-gray-700 hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
-        </motion.button>
-        
-        {/* Edit button for blog owner */}
-        {isBlogOwner && (
+      {/* Actions - Only show here for posts WITH images */}
+      {post.image_urls && post.image_urls.length > 0 && (
+        <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3">
           <motion.button
-            onClick={() => onEditPost?.(post)}
-            className="transition-colors"
-            title="Edit post"
+            onClick={toggleLike}
+            disabled={isLiking}
+            className="transition-transform"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
             <svg 
-              width="20" 
-              height="20" 
+              width="24" 
+              height="24" 
               viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
+              fill={isLiked ? "#ef4444" : "none"}
+              stroke={isLiked ? "#ef4444" : "#374151"}
               strokeWidth="2"
-              className="cursor-pointer text-gray-500 hover:text-gray-700"
+              className="cursor-pointer transition-colors hover:stroke-red-500"
             >
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
           </motion.button>
-        )}
+          
+          {/* Edit button for blog owner */}
+          {isBlogOwner && (
+            <motion.button
+              onClick={() => onEditPost?.(post)}
+              className="transition-colors"
+              title="Edit post"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <svg 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+                className="cursor-pointer text-gray-500 hover:text-gray-700"
+              >
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+            </motion.button>
+          )}
 
-        {/* Delete button for blog owner */}
-        {isBlogOwner && (
-          <motion.button
-            onClick={() => onDeletePost?.(post)}
-            className="transition-colors"
-            title="Delete post"
+          {/* Delete button for blog owner */}
+          {isBlogOwner && (
+            <motion.button
+              onClick={() => onDeletePost?.(post)}
+              className="transition-colors"
+              title="Delete post"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <svg 
+                width="18" 
+                height="18" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+                className="cursor-pointer text-red-500 hover:text-red-700"
+              >
+                <polyline points="3,6 5,6 21,6"></polyline>
+                <path d="M19,6V20a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6M8,6V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2V6"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </motion.button>
+          )}
+          
+          <motion.button 
+            className="ml-auto" 
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
-            <svg 
-              width="18" 
-              height="18" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2"
-              className="cursor-pointer text-red-500 hover:text-red-700"
-            >
-              <polyline points="3,6 5,6 21,6"></polyline>
-              <path d="M19,6V20a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6M8,6V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2V6"></path>
-              <line x1="10" y1="11" x2="10" y2="17"></line>
-              <line x1="14" y1="11" x2="14" y2="17"></line>
+            <svg className="w-6 h-6 text-gray-700 hover:text-green-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
             </svg>
           </motion.button>
-        )}
-        
-        <motion.button 
-          className="ml-auto" 
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <svg className="w-6 h-6 text-gray-700 hover:text-green-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-          </svg>
-        </motion.button>
-      </div>
+        </div>
+      )}
 
-      {/* Likes */}
-      <p className="font-semibold text-gray-900 text-sm px-3 sm:px-4 mb-2">
-        {formatLikes(likesCount)}
-      </p>
+      {/* Likes - Only show here for posts WITH images */}
+      {post.image_urls && post.image_urls.length > 0 && (
+        <p className="font-semibold text-gray-900 text-sm px-3 sm:px-4 mb-2">
+          {formatLikes(likesCount)}
+        </p>
+      )}
 
       {/* Content */}
       <div className="mb-3 px-3 sm:px-4">
@@ -415,6 +410,92 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
         )}
       </div>
 
+
+      {/* Like button and stats for posts WITHOUT images - Twitter style */}
+      {(!post.image_urls || post.image_urls.length === 0) && (
+        <div className="px-3 sm:px-4 mb-3">
+          <div className="flex items-center gap-4">
+            <motion.button
+              onClick={toggleLike}
+              disabled={isLiking}
+              className="flex items-center gap-1 transition-all"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <svg 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill={isLiked ? "#ef4444" : "none"}
+                stroke={isLiked ? "#ef4444" : "#6b7280"}
+                strokeWidth="2"
+                className="cursor-pointer transition-colors hover:stroke-red-500"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              <span className="text-sm text-gray-600">{likesCount}</span>
+            </motion.button>
+            
+            {/* Edit and Delete buttons for blog owner */}
+            {isBlogOwner && (
+              <>
+                <motion.button
+                  onClick={() => onEditPost?.(post)}
+                  className="transition-colors"
+                  title="Edit post"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <svg 
+                    width="18" 
+                    height="18" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                    className="cursor-pointer text-gray-500 hover:text-gray-700"
+                  >
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </motion.button>
+                <motion.button
+                  onClick={() => onDeletePost?.(post)}
+                  className="transition-colors"
+                  title="Delete post"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <svg 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                    className="cursor-pointer text-red-500 hover:text-red-700"
+                  >
+                    <polyline points="3,6 5,6 21,6"></polyline>
+                    <path d="M19,6V20a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6M8,6V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2V6"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                  </svg>
+                </motion.button>
+              </>
+            )}
+            
+            <motion.button 
+              className="ml-auto" 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <svg className="w-5 h-5 text-gray-600 hover:text-green-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+              </svg>
+            </motion.button>
+          </div>
+        </div>
+      )}
 
       {/* Comments count */}
       <p 
