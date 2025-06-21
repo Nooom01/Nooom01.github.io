@@ -245,12 +245,19 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
           <span className="text-white font-semibold text-xs sm:text-sm">{username.charAt(0).toUpperCase()}</span>
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900">{username}</h3>
-          <div className="flex items-center gap-1 mt-0.5">
-            {category !== 'sleep' && (
-              <span className="text-xs text-gray-500">{post.title}</span>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-gray-900">{username}</h3>
+            {/* Show timestamp for posts without images (Twitter-style) */}
+            {(!post.image_urls || post.image_urls.length === 0) && (
+              <span className="text-xs text-gray-500">· {new Date(post.created_at).toLocaleDateString()}</span>
             )}
           </div>
+          {/* Show title only for posts with images */}
+          {category !== 'sleep' && post.image_urls && post.image_urls.length > 0 && (
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="text-xs text-gray-500">{post.title}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -266,37 +273,13 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
         </div>
       )}
 
-      {/* Image or content preview - Hidden for sleep posts */}
-      {category !== 'sleep' && (
+      {/* Image display - Only show if images exist */}
+      {category !== 'sleep' && post.image_urls && post.image_urls.length > 0 && (
         <div 
           className="relative bg-gray-50 flex items-center justify-center"
           style={{ height: '300px' }}
         >
-          {post.image_urls && post.image_urls.length > 0 ? (
-            <img src={post.image_urls[0]} alt="Post" className="w-full h-full object-cover" />
-          ) : (
-            <div className="p-6 text-center w-full h-full flex flex-col items-center justify-center bg-gray-100">
-              <motion.div 
-                className="mb-4 flex items-center justify-center"
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                  rotate: [0, 5, -5, 0]
-                }}
-                transition={{ 
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                <div className="w-16 h-16 flex items-center justify-center">
-                  {React.cloneElement(categoryIcons[category as keyof typeof categoryIcons], {
-                    className: "w-12 h-12"
-                  })}
-                </div>
-              </motion.div>
-              <p className="text-sm px-4 text-gray-700 bg-white rounded-xl p-4 shadow-sm max-w-xs">{post.content.substring(0, 100)}...</p>
-            </div>
-          )}
+          <img src={post.image_urls[0]} alt="Post" className="w-full h-full object-cover" />
         </div>
       )}
       
@@ -419,13 +402,13 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
 
       {/* Content */}
       <div className="mb-3 px-3 sm:px-4">
-        {category === 'sleep' ? (
-          /* Sleep posts: More Twitter-like, content-focused */
+        {category === 'sleep' || (!post.image_urls || post.image_urls.length === 0) ? (
+          /* Sleep posts and posts without images: Twitter-style */
           <p className="text-sm text-gray-900 leading-relaxed">
             {post.content}
           </p>
         ) : (
-          /* Other posts: Instagram-style with username */
+          /* Posts with images: Instagram-style with username */
           <p className="text-sm text-gray-900 leading-relaxed">
             <span className="font-semibold">{username}</span> {post.content}
           </p>
