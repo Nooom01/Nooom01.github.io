@@ -61,6 +61,7 @@ interface Post {
   video_urls: string[]
   created_at: string
   user_id: string
+  username?: string
   weather?: {
     temp: number
     condition: string
@@ -137,7 +138,7 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
     return `${num} likes`
   }
 
-  const username = 'kawaii_blogger'
+  const username = post.username || 'kawaii_blogger'
 
   const toggleLike = async () => {
     if (isLiking) return
@@ -435,13 +436,25 @@ export default function CategoryFeed({ category, onClose, onEditPost, onDeletePo
     try {
       const { data, error } = await supabase
         .from('posts')
-        .select('*')
+        .select(`
+          *,
+          profiles:user_id (
+            username
+          )
+        `)
         .eq('category', category)
         .eq('is_draft', false)
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      setPosts(data || [])
+      
+      // Transform the data to flatten the profile info
+      const postsWithUsernames = (data || []).map(post => ({
+        ...post,
+        username: post.profiles?.username || 'Unknown User'
+      }))
+      
+      setPosts(postsWithUsernames)
     } catch (error) {
       console.error('Error fetching posts:', error)
     } finally {

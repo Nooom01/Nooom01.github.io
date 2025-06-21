@@ -246,6 +246,13 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
   const onSubmit = async (data: any) => {
     setIsSubmitting(true)
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        alert('You must be logged in to create posts')
+        return
+      }
+
       // Parse hashtags into array
       const hashtagsArray = data.hashtags 
         ? data.hashtags.split(' ').filter((tag: string) => tag.trim().length > 0)
@@ -260,7 +267,8 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
         video_urls: uploadedFiles.videos,
         is_draft: false,
         updated_at: new Date().toISOString(),
-        weather: weatherData
+        weather: weatherData,
+        user_id: user.id
       }
       
       if (editPost) {
