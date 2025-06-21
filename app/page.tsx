@@ -17,6 +17,12 @@ export default function Home() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [postToDelete, setPostToDelete] = useState<any>(null)
   const [isBlogOwner, setIsBlogOwner] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    console.log('🚀 React component mounted! Page.tsx is running')
+    setMounted(true)
+  }, [])
 
   const handleCategoryClick = (category: string) => {
     console.log('Category clicked:', category)
