@@ -236,6 +236,8 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
+      data-post-id={post.id}
+      data-component="simple-post"
     >
       {/* Header */}
       <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4">
@@ -466,6 +468,8 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
 }
 
 export default function CategoryFeed({ category, onClose, onEditPost, onDeletePost, isBlogOwner }: CategoryFeedProps) {
+  console.log('📋 CategoryFeed component loaded for category:', category)
+  
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
 
