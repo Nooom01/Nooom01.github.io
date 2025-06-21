@@ -91,24 +91,41 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
 
   const fetchLikesAndComments = async () => {
     try {
+      console.log('🔍 Fetching likes for post:', post.id)
+      
       // Get current user
       const { data: { user } } = await supabase.auth.getUser()
+      console.log('👤 Current user:', user?.id || 'Not logged in')
       
       // Fetch likes count
-      const { count: likesCount } = await supabase
+      const { count: likesCount, error: likesError } = await supabase
         .from('likes')
         .select('*', { count: 'exact', head: true })
         .eq('post_id', post.id)
       
-      setLikesCount(likesCount || 0)
+      console.log('❤️ Likes count result:', { likesCount, likesError })
+      
+      if (likesError) {
+        console.error('Likes table error:', likesError)
+        setLikesCount(0)
+      } else {
+        setLikesCount(likesCount || 0)
+      }
       
       // Fetch comments count
-      const { count: commentsCountData } = await supabase
+      const { count: commentsCountData, error: commentsError } = await supabase
         .from('comments')
         .select('*', { count: 'exact', head: true })
         .eq('post_id', post.id)
       
-      setCommentsCount(commentsCountData || 0)
+      console.log('💬 Comments count result:', { commentsCountData, commentsError })
+      
+      if (commentsError) {
+        console.error('Comments table error:', commentsError)
+        setCommentsCount(0)
+      } else {
+        setCommentsCount(commentsCountData || 0)
+      }
       
       // Check if current user liked this post
       if (user) {
@@ -119,13 +136,18 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
           .eq('user_id', user.id)
           .maybeSingle()
         
+        console.log('🔍 User like check:', { userLike, likeError, postId: post.id, userId: user.id })
+        
         // Only log actual errors, not "no rows found"
         if (likeError && likeError.code !== 'PGRST116') {
           console.error('Error checking user like:', likeError)
+          setIsLiked(false)
+        } else {
+          setIsLiked(!!userLike)
+          console.log('❤️ User liked this post:', !!userLike)
         }
-        
-        setIsLiked(!!userLike)
       } else {
+        console.log('👤 No user logged in, setting isLiked to false')
         setIsLiked(false)
       }
     } catch (error) {
@@ -155,36 +177,48 @@ function SimplePost({ post, category, onEditPost, onDeletePost, isBlogOwner }: {
       const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
-        console.log('User not authenticated')
+        console.log('❌ User not authenticated')
         setIsLiking(false)
         return
       }
       
+      console.log('🔄 Toggling like:', { postId: post.id, userId: user.id, currentlyLiked: isLiked })
+      
       if (isLiked) {
         // Unlike
+        console.log('➖ Removing like...')
         const { error } = await supabase
           .from('likes')
           .delete()
           .eq('post_id', post.id)
           .eq('user_id', user.id)
         
-        if (error) throw error
+        if (error) {
+          console.error('❌ Error removing like:', error)
+          throw error
+        }
         
+        console.log('✅ Like removed successfully')
         setLikesCount(prev => Math.max(0, prev - 1))
         setIsLiked(false)
       } else {
         // Like
+        console.log('➕ Adding like...')
         const { error } = await supabase
           .from('likes')
           .insert({ post_id: post.id, user_id: user.id })
         
-        if (error) throw error
+        if (error) {
+          console.error('❌ Error adding like:', error)
+          throw error
+        }
         
+        console.log('✅ Like added successfully')
         setLikesCount(prev => prev + 1)
         setIsLiked(true)
       }
     } catch (error) {
-      console.error('Error toggling like:', error)
+      console.error('❌ Error toggling like:', error)
     } finally {
       setIsLiking(false)
     }
