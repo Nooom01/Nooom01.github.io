@@ -134,39 +134,27 @@ export default function AllPostsFeed({ onPostClick, onEditPost, onDeletePost, is
           // Try to fetch from profiles table first
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .select('username, avatar_url, display_name, full_name')
+            .select('username, avatar_url')
             .eq('id', userId)
             .single()
           
           if (profile && !profileError) {
             userProfiles[userId] = {
-              username: profile.display_name || profile.username || profile.full_name || 'User',
+              username: profile.username || 'User',
               avatar_url: profile.avatar_url
             }
           } else {
-            // Fallback: If no profiles table, use a default based on whether it's the current user
-            if (currentUser && currentUser.id === userId) {
-              userProfiles[userId] = {
-                username: currentUser.user_metadata?.display_name || 
-                         currentUser.user_metadata?.full_name || 
-                         currentUser.user_metadata?.name ||
-                         currentUser.email?.split('@')[0] || 
-                         'You',
-                avatar_url: currentUser.user_metadata?.avatar_url
-              }
-            } else {
-              // For other users when no profile exists
-              userProfiles[userId] = {
-                username: 'User',
-                avatar_url: null
-              }
+            // Fallback: If no profile in database, use a default
+            userProfiles[userId] = {
+              username: 'User',
+              avatar_url: undefined
             }
           }
         } catch (error) {
           console.error('Error fetching user profile:', error)
           userProfiles[userId] = {
             username: 'User',
-            avatar_url: null
+            avatar_url: undefined
           }
         }
       }
@@ -175,19 +163,21 @@ export default function AllPostsFeed({ onPostClick, onEditPost, onDeletePost, is
       const postsWithProfile = newPosts.map((post) => {
         let profileData = {
           username: 'Anonymous User',
-          avatar_url: null
+          avatar_url: undefined
         }
         
         if (post.user_id && userProfiles[post.user_id]) {
           profileData = userProfiles[post.user_id]
           
-          // If viewing your own posts while logged in, show "You"
+          // Only show "You" if the current user is logged in AND it's their own post
+          // Otherwise, always show the actual username
           if (currentUser && currentUser.id === post.user_id) {
             profileData = {
               ...profileData,
               username: 'You'
             }
           }
+          // For everyone else (including logged-out users), show the actual username
         }
         
         return {
@@ -409,10 +399,18 @@ export default function AllPostsFeed({ onPostClick, onEditPost, onDeletePost, is
                 <div className="p-4">
                   {/* Header */}
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-semibold text-sm">
-                        {post.profiles?.username?.charAt(0).toUpperCase() || 'B'}
-                      </span>
+                    <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-500">
+                      {post.profiles?.avatar_url ? (
+                        <img 
+                          src={post.profiles.avatar_url} 
+                          alt={post.profiles.username || 'User'} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-white font-semibold text-sm">
+                          {post.profiles?.username?.charAt(0).toUpperCase() || 'B'}
+                        </span>
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
