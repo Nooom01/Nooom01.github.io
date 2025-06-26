@@ -11,8 +11,8 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: 'Kawaii Blog - My Personal Life Journal',
-  description: 'A cute personal blog to share my daily activities and thoughts',
+  title: 'Daily Check-In',
+  description: 'Personal daily activity tracker and life journal',
 }
 
 export default function RootLayout({

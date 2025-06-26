@@ -84,8 +84,8 @@ export default function AllPostsFeed({ onPostClick, onEditPost, onDeletePost, is
   const POSTS_PER_PAGE = 10
 
   useEffect(() => {
-    fetchPosts()
     getCurrentUser()
+    fetchPosts()
     
     const unsubscribe = subscribeToPostUpdates()
     
@@ -109,7 +109,7 @@ export default function AllPostsFeed({ onPostClick, onEditPost, onDeletePost, is
       
       const { data, error } = await supabase
         .from('posts')
-        .select('id, title, content, category, created_at, hashtags, image_urls, video_urls, music, weather')
+        .select('id, title, content, category, created_at, hashtags, image_urls, video_urls, music, weather, user_id')
         .order('created_at', { ascending: false })
         .range(offset, offset + POSTS_PER_PAGE - 1)
 
@@ -120,14 +120,81 @@ export default function AllPostsFeed({ onPostClick, onEditPost, onDeletePost, is
       
       const newPosts = data || []
       
-      // Add mock profile data
-      const postsWithProfile = newPosts.map(post => ({
-        ...post,
-        profiles: {
-          username: 'Blog Owner',
+      // Get current user info
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      
+      // Get unique user IDs from posts
+      const uniqueUserIds = [...new Set(newPosts.map(post => post.user_id).filter(Boolean))]
+      
+      // Fetch user information for all post authors
+      const userProfiles: Record<string, any> = {}
+      
+      for (const userId of uniqueUserIds) {
+        try {
+          // Try to fetch from profiles table first
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('username, avatar_url, display_name, full_name')
+            .eq('id', userId)
+            .single()
+          
+          if (profile && !profileError) {
+            userProfiles[userId] = {
+              username: profile.display_name || profile.username || profile.full_name || 'User',
+              avatar_url: profile.avatar_url
+            }
+          } else {
+            // Fallback: If no profiles table, use a default based on whether it's the current user
+            if (currentUser && currentUser.id === userId) {
+              userProfiles[userId] = {
+                username: currentUser.user_metadata?.display_name || 
+                         currentUser.user_metadata?.full_name || 
+                         currentUser.user_metadata?.name ||
+                         currentUser.email?.split('@')[0] || 
+                         'You',
+                avatar_url: currentUser.user_metadata?.avatar_url
+              }
+            } else {
+              // For other users when no profile exists
+              userProfiles[userId] = {
+                username: 'User',
+                avatar_url: null
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error)
+          userProfiles[userId] = {
+            username: 'User',
+            avatar_url: null
+          }
+        }
+      }
+      
+      // Add profile data based on user_id
+      const postsWithProfile = newPosts.map((post) => {
+        let profileData = {
+          username: 'Anonymous User',
           avatar_url: null
         }
-      }))
+        
+        if (post.user_id && userProfiles[post.user_id]) {
+          profileData = userProfiles[post.user_id]
+          
+          // If viewing your own posts while logged in, show "You"
+          if (currentUser && currentUser.id === post.user_id) {
+            profileData = {
+              ...profileData,
+              username: 'You'
+            }
+          }
+        }
+        
+        return {
+          ...post,
+          profiles: profileData
+        }
+      })
       
       if (append) {
         setPosts(prev => [...prev, ...postsWithProfile])
