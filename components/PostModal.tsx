@@ -132,6 +132,11 @@ const postTemplates = {
   ]
 }
 
+interface FormData {
+  content: string
+  hashtags: string
+}
+
 export default function PostModal({ onClose, editPost, isBlogOwner = false }: PostModalProps) {
   // Security check - only blog owner can create/edit posts
   if (!isBlogOwner) {
@@ -171,22 +176,17 @@ export default function PostModal({ onClose, editPost, isBlogOwner = false }: Po
   const [isUploading, setIsUploading] = useState(false)
   const [showTemplates, setShowTemplates] = useState(!editPost) // Show templates by default for new posts
   const [weatherData, setWeatherData] = useState<any>(null)
-  const { register, handleSubmit, reset, setValue, watch } = useForm({
+  const { register, handleSubmit, reset, setValue, watch } = useForm<FormData>({
     defaultValues: editPost ? {
-      title: editPost.title,
       content: editPost.content,
-      category: editPost.category,
       hashtags: editPost.hashtags?.join(' ') || ''
     } : {
-      category: 'life'
+      content: '',
+      hashtags: ''
     }
   })
 
   const applyTemplate = (template: any) => {
-    const currentCategory = watch('category')
-    if (currentCategory !== 'sleep') {
-      setValue('title', template.title)
-    }
     setValue('content', template.content)
     setValue('hashtags', template.hashtags)
     setShowTemplates(false)
@@ -247,7 +247,7 @@ export default function PostModal({ onClose, editPost, isBlogOwner = false }: Po
     }))
   }
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: FormData) => {
     setIsSubmitting(true)
     try {
       // Get current user
@@ -263,8 +263,8 @@ export default function PostModal({ onClose, editPost, isBlogOwner = false }: Po
         : []
       
       const postData = {
-        category: data.category,
-        title: data.title || (data.category === 'sleep' ? 'Sleep Log' : 'Untitled'),
+        category: editPost?.category || 'life', // Use existing category for edits, default to 'life' for new posts
+        title: 'Untitled',
         content: data.content,
         hashtags: hashtagsArray,
         image_urls: uploadedFiles.images,
@@ -337,136 +337,20 @@ export default function PostModal({ onClose, editPost, isBlogOwner = false }: Po
           </button>
         </div>
         <div className="p-4 sm:p-6">
-          {/* Template Selector */}
-          {showTemplates && (
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-gray-900">
-                  📝 Quick Templates
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setShowTemplates(false)}
-                  className="text-xs text-gray-500 hover:text-gray-700"
-                >
-                  Skip templates
-                </button>
-              </div>
-              <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
-                {postTemplates[watch('category') as keyof typeof postTemplates]?.map((template, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => applyTemplate(template)}
-                    className="text-left p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="text-sm font-semibold text-gray-900">
-                      {template.name}
-                    </div>
-                    <div className="text-xs text-gray-600 mt-1">
-                      {template.content.substring(0, 80)}...
-                    </div>
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => setShowTemplates(false)}
-                  className="text-center p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <div className="text-sm text-gray-700">
-                    ✨ Start from scratch
-                  </div>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {!showTemplates && (
-            <div className="mb-4">
-              <button
-                type="button"
-                onClick={() => setShowTemplates(true)}
-                className="text-xs text-gray-500 hover:text-gray-700 underline"
-              >
-                📝 Use a template instead
-              </button>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Category Selector */}
-            <div>
-              <label className="block text-gray-700 mb-2 font-medium text-sm">
-                Category:
-              </label>
-              <select
-                {...register('category', { required: true })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-              >
-                <option value="eat">🍳 Eat</option>
-                <option value="sleep">😴 Sleep</option>
-                <option value="study">📚 Study</option>
-                <option value="play">🎮 Play</option>
-                <option value="life">⭐ Life</option>
-              </select>
-            </div>
-
-            {/* Title - Optional for sleep posts */}
-            {watch('category') !== 'sleep' && (
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">
-                  Title:
-                </label>
-                <input
-                  {...register('title', { required: true })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="What's happening?"
-                />
-              </div>
-            )}
 
             <div>
               <label className="block text-gray-700 mb-2 font-medium text-sm">
-                {watch('category') === 'sleep' ? 'Sleep Log:' : 'Content:'}
+                What's on your mind?
               </label>
               <textarea
                 {...register('content', { required: true })}
-                className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
-                  watch('category') === 'sleep' ? 'h-20' : 'h-24'
-                }`}
-                placeholder={
-                  watch('category') === 'sleep' 
-                    ? "How was your sleep? (e.g., 'Slept 8 hours, felt refreshed' or 'Tossed and turned all night')"
-                    : "Share your thoughts..."
-                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-24"
+                placeholder="Share your thoughts..."
               />
             </div>
             
-            {/* Sleep suggestions for quick logging */}
-            {watch('category') === 'sleep' && (
-              <div>
-                <p className="text-gray-600 text-sm mb-2">Quick options:</p>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "Slept well 😴",
-                    "8 hours of sleep",
-                    "Couldn't sleep",
-                    "Afternoon nap",
-                    "Woke up refreshed",
-                    "Restless night"
-                  ].map((suggestion) => (
-                    <button
-                      key={suggestion}
-                      type="button"
-                      onClick={() => setValue('content', suggestion)}
-                      className="px-3 py-1 bg-gray-100 border border-gray-300 rounded text-sm hover:bg-gray-200 transition-colors"
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Hashtags */}
             <div>
@@ -476,18 +360,12 @@ export default function PostModal({ onClose, editPost, isBlogOwner = false }: Po
               <input
                 {...register('hashtags')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder={
-                  watch('category') === 'sleep' 
-                    ? "#sleep #goodnight #restful #tired"
-                    : "#life #thoughts #daily"
-                }
+                placeholder="#life #thoughts #daily"
               />
             </div>
 
-            {/* Photo/Video Upload - Hidden for sleep posts */}
-            {watch('category') !== 'sleep' && (
-              <>
-                {/* Photo Upload */}
+            {/* Photo/Video Upload */}
+            {/* Photo Upload */}
             <div>
               <label className="block text-gray-700 mb-2 font-medium text-sm">
                 Photos:
@@ -556,8 +434,6 @@ export default function PostModal({ onClose, editPost, isBlogOwner = false }: Po
                 </div>
               )}
             </div>
-              </>
-            )}
 
             {isUploading && (
               <div className="text-center text-gray-600 text-sm">
