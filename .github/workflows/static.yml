@@ -27,12 +27,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Clean npm cache
-        run: npm cache clean --force
+          cache: 'npm'
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://wxvcmvacajexdtcbgdva.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4dmNtdmFjYWpleGR0Y2JnZHZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMjMzMzYsImV4cCI6MjA2NDc5OTMzNn0.rKIixUac8fxLrHGzlXDEMz2xGcfgpX_QY6ZjhlVpWmQ
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
