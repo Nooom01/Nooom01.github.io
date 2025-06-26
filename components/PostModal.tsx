@@ -7,13 +7,13 @@ import { supabase } from '@/lib/supabase-client'
 import WeatherWidget from '@/components/WeatherWidget'
 
 interface PostModalProps {
-  category: string
   onClose: () => void
   isBlogOwner?: boolean
   editPost?: {
     id: string
     title: string
     content: string
+    category: string
     hashtags: string[]
     image_urls: string[]
     video_urls: string[]
@@ -132,7 +132,7 @@ const postTemplates = {
   ]
 }
 
-export default function PostModal({ category, onClose, editPost, isBlogOwner = false }: PostModalProps) {
+export default function PostModal({ onClose, editPost, isBlogOwner = false }: PostModalProps) {
   // Security check - only blog owner can create/edit posts
   if (!isBlogOwner) {
     return (
@@ -175,12 +175,16 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
     defaultValues: editPost ? {
       title: editPost.title,
       content: editPost.content,
+      category: editPost.category,
       hashtags: editPost.hashtags?.join(' ') || ''
-    } : {}
+    } : {
+      category: 'life'
+    }
   })
 
   const applyTemplate = (template: any) => {
-    if (category !== 'sleep') {
+    const currentCategory = watch('category')
+    if (currentCategory !== 'sleep') {
       setValue('title', template.title)
     }
     setValue('content', template.content)
@@ -259,8 +263,8 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
         : []
       
       const postData = {
-        category,
-        title: data.title || (category === 'sleep' ? 'Sleep Log' : 'Untitled'),
+        category: data.category,
+        title: data.title || (data.category === 'sleep' ? 'Sleep Log' : 'Untitled'),
         content: data.content,
         hashtags: hashtagsArray,
         image_urls: uploadedFiles.images,
@@ -322,8 +326,8 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
       >
         <div className="sticky top-0 z-10 bg-white bg-opacity-90 backdrop-blur-sm flex items-center justify-between p-3 sm:p-6 border-b border-gray-200 rounded-t-2xl">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
-            <span className="text-lg">{categoryEmojis[category as keyof typeof categoryEmojis]}</span>
-            {editPost ? 'Edit' : 'Create'} {category.charAt(0).toUpperCase() + category.slice(1)} Post
+            <span className="text-lg">📝</span>
+            {editPost ? 'Edit' : 'Create'} Post
           </h2>
           <button
             onClick={onClose}
@@ -337,30 +341,29 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
           {showTemplates && (
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-pixel text-pixel-sm font-bold text-kawaii-text">
+                <h3 className="text-sm font-semibold text-gray-900">
                   📝 Quick Templates
                 </h3>
                 <button
                   type="button"
                   onClick={() => setShowTemplates(false)}
-                  className="font-pixel text-pixel-xs text-kawaii-text/60 hover:text-kawaii-text"
+                  className="text-xs text-gray-500 hover:text-gray-700"
                 >
                   Skip templates
                 </button>
               </div>
               <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
-                {postTemplates[category as keyof typeof postTemplates]?.map((template, index) => (
+                {postTemplates[watch('category') as keyof typeof postTemplates]?.map((template, index) => (
                   <button
                     key={index}
                     type="button"
                     onClick={() => applyTemplate(template)}
-                    className="text-left p-3 bg-kawaii-surface border-2 border-kawaii-border rounded-lg pixel-ui hover:bg-kawaii-accent transition-colors"
-                    style={{ borderStyle: 'outset' }}
+                    className="text-left p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
                   >
-                    <div className="font-pixel text-pixel-sm font-bold text-kawaii-text">
+                    <div className="text-sm font-semibold text-gray-900">
                       {template.name}
                     </div>
-                    <div className="font-pixel text-pixel-xs text-kawaii-text/70 mt-1">
+                    <div className="text-xs text-gray-600 mt-1">
                       {template.content.substring(0, 80)}...
                     </div>
                   </button>
@@ -368,10 +371,9 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
                 <button
                   type="button"
                   onClick={() => setShowTemplates(false)}
-                  className="text-center p-3 bg-kawaii-background border-2 border-kawaii-border rounded-lg pixel-ui hover:bg-kawaii-surface transition-colors"
-                  style={{ borderStyle: 'inset' }}
+                  className="text-center p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  <div className="font-pixel text-pixel-sm text-kawaii-text">
+                  <div className="text-sm text-gray-700">
                     ✨ Start from scratch
                   </div>
                 </button>
@@ -384,7 +386,7 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
               <button
                 type="button"
                 onClick={() => setShowTemplates(true)}
-                className="font-pixel text-pixel-xs text-kawaii-text/60 hover:text-kawaii-text underline"
+                className="text-xs text-gray-500 hover:text-gray-700 underline"
               >
                 📝 Use a template instead
               </button>
@@ -392,44 +394,59 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Category Selector */}
+            <div>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">
+                Category:
+              </label>
+              <select
+                {...register('category', { required: true })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="eat">🍳 Eat</option>
+                <option value="sleep">😴 Sleep</option>
+                <option value="study">📚 Study</option>
+                <option value="play">🎮 Play</option>
+                <option value="life">⭐ Life</option>
+              </select>
+            </div>
+
             {/* Title - Optional for sleep posts */}
-            {category !== 'sleep' && (
+            {watch('category') !== 'sleep' && (
               <div>
-                <label className="block text-kawaii-text mb-2 font-pixel font-bold text-pixel-sm">
+                <label className="block text-gray-700 mb-2 font-medium text-sm">
                   Title:
                 </label>
                 <input
                   {...register('title', { required: true })}
-                  className="w-full px-3 py-2 border-2 border-kawaii-border focus:outline-none font-pixel text-pixel-sm bg-white text-kawaii-text rounded-lg pixel-ui"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="What's happening?"
-                  style={{ borderStyle: 'inset' }}
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-kawaii-text mb-2 font-pixel font-bold text-pixel-sm">
-                {category === 'sleep' ? 'Sleep Log:' : 'Content:'}
+              <label className="block text-gray-700 mb-2 font-medium text-sm">
+                {watch('category') === 'sleep' ? 'Sleep Log:' : 'Content:'}
               </label>
               <textarea
                 {...register('content', { required: true })}
-                className={`w-full px-3 py-2 border-2 border-kawaii-border focus:outline-none resize-none font-pixel text-pixel-sm bg-white text-kawaii-text rounded-lg pixel-ui ${
-                  category === 'sleep' ? 'h-20' : 'h-24'
+                className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
+                  watch('category') === 'sleep' ? 'h-20' : 'h-24'
                 }`}
                 placeholder={
-                  category === 'sleep' 
+                  watch('category') === 'sleep' 
                     ? "How was your sleep? (e.g., 'Slept 8 hours, felt refreshed' or 'Tossed and turned all night')"
                     : "Share your thoughts..."
                 }
-                style={{ borderStyle: 'inset' }}
               />
             </div>
             
             {/* Sleep suggestions for quick logging */}
-            {category === 'sleep' && (
+            {watch('category') === 'sleep' && (
               <div>
-                <p className="text-kawaii-text/60 font-pixel text-pixel-xs mb-2">Quick options:</p>
-                <div className="flex flex-wrap gap-1 sm:gap-2">
+                <p className="text-gray-600 text-sm mb-2">Quick options:</p>
+                <div className="flex flex-wrap gap-2">
                   {[
                     "Slept well 😴",
                     "8 hours of sleep",
@@ -442,8 +459,7 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
                       key={suggestion}
                       type="button"
                       onClick={() => setValue('content', suggestion)}
-                      className="px-1 sm:px-2 py-1 bg-kawaii-surface border border-kawaii-border rounded font-pixel text-pixel-xs hover:bg-kawaii-accent transition-colors pixel-ui text-xs"
-                      style={{ borderStyle: 'outset' }}
+                      className="px-3 py-1 bg-gray-100 border border-gray-300 rounded text-sm hover:bg-gray-200 transition-colors"
                     >
                       {suggestion}
                     </button>
@@ -452,29 +468,28 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
               </div>
             )}
 
-            {/* Hashtags - sleep-specific suggestions */}
+            {/* Hashtags */}
             <div>
-              <label className="block text-kawaii-text mb-2 font-pixel font-bold text-pixel-sm">
+              <label className="block text-gray-700 mb-2 font-medium text-sm">
                 Hashtags:
               </label>
               <input
                 {...register('hashtags')}
-                className="w-full px-3 py-2 border-2 border-kawaii-border focus:outline-none font-pixel text-pixel-sm bg-white text-kawaii-text rounded-lg pixel-ui"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder={
-                  category === 'sleep' 
+                  watch('category') === 'sleep' 
                     ? "#sleep #goodnight #restful #tired"
-                    : "#cute #kawaii #life"
+                    : "#life #thoughts #daily"
                 }
-                style={{ borderStyle: 'inset' }}
               />
             </div>
 
             {/* Photo/Video Upload - Hidden for sleep posts */}
-            {category !== 'sleep' && (
+            {watch('category') !== 'sleep' && (
               <>
                 {/* Photo Upload */}
             <div>
-              <label className="block text-kawaii-text mb-2 font-pixel font-bold text-pixel-sm">
+              <label className="block text-gray-700 mb-2 font-medium text-sm">
                 Photos:
               </label>
               <input
@@ -482,8 +497,7 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
                 multiple
                 accept="image/*"
                 onChange={(e) => handleFileUpload(e, 'images')}
-                className="w-full px-3 py-2 border-2 border-kawaii-border focus:outline-none font-pixel text-pixel-sm bg-white text-kawaii-text rounded-lg pixel-ui"
-                style={{ borderStyle: 'inset' }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 disabled={isUploading}
               />
               {uploadedFiles.images.length > 0 && (
@@ -493,7 +507,7 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
                       <img 
                         src={url} 
                         alt={`Upload ${index + 1}`} 
-                        className="w-full h-20 object-cover rounded border-2 border-kawaii-border"
+                        className="w-full h-20 object-cover rounded border border-gray-300"
                       />
                       <button
                         type="button"
@@ -510,7 +524,7 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
 
             {/* Video Upload */}
             <div>
-              <label className="block text-kawaii-text mb-2 font-pixel font-bold text-pixel-sm">
+              <label className="block text-gray-700 mb-2 font-medium text-sm">
                 Videos:
               </label>
               <input
@@ -518,8 +532,7 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
                 multiple
                 accept="video/*"
                 onChange={(e) => handleFileUpload(e, 'videos')}
-                className="w-full px-3 py-2 border-2 border-kawaii-border focus:outline-none font-pixel text-pixel-sm bg-white text-kawaii-text rounded-lg pixel-ui"
-                style={{ borderStyle: 'inset' }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 disabled={isUploading}
               />
               {uploadedFiles.videos.length > 0 && (
@@ -528,7 +541,7 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
                     <div key={index} className="relative">
                       <video 
                         src={url} 
-                        className="w-full h-32 object-cover rounded border-2 border-kawaii-border"
+                        className="w-full h-32 object-cover rounded border border-gray-300"
                         controls
                       />
                       <button
@@ -547,35 +560,31 @@ export default function PostModal({ category, onClose, editPost, isBlogOwner = f
             )}
 
             {isUploading && (
-              <div className="text-center text-kawaii-text font-pixel text-pixel-sm">
+              <div className="text-center text-gray-600 text-sm">
                 Uploading files... 📤
               </div>
             )}
 
             {/* Weather Widget */}
-            <div className="pt-4 border-t-2 border-kawaii-border">
+            <div className="pt-4 border-t border-gray-200">
               <WeatherWidget onWeatherUpdate={setWeatherData} />
             </div>
 
-            <div className="flex gap-2 sm:gap-3 pt-4">
-              <motion.button
+            <div className="flex gap-3 pt-4">
+              <button
                 type="submit"
                 disabled={isSubmitting}
-                className="retro-button pixel-button flex-1 bg-green-300 hover:bg-green-400 disabled:opacity-50"
-                whileHover={{ y: -1 }}
-                whileTap={{ y: 0 }}
+                className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isSubmitting ? 'Posting...' : 'Post'}
-              </motion.button>
-              <motion.button
+              </button>
+              <button
                 type="button"
                 onClick={onClose}
-                className="retro-button pixel-button flex-1 bg-gray-200 hover:bg-gray-300"
-                whileHover={{ y: -1 }}
-                whileTap={{ y: 0 }}
+                className="flex-1 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
               >
                 Cancel
-              </motion.button>
+              </button>
             </div>
           </form>
         </div>
